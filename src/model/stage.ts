@@ -1,4 +1,4 @@
 export type Stage = {
   description: string;
-  state: ["current", "completed", "prepared"];
+  state: "current" | "completed" | "prepared";
 };
