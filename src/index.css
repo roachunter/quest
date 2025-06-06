@@ -1,0 +1,41 @@
+@import url("../node_modules/modern-normalize/modern-normalize.css");
+@import url("./presentation/styles/ticket-border.css");
+
+:root {
+  /* Base colors */
+  --yellow: #b46000;
+  --yellow-bit-transparent: #ff99008e;
+  --yellow-enough-transparent: #ff990060;
+  --yellow-more-transparent: #ff990024;
+  --yellow-almost-transparent: #ff99000e;
+
+  --yellow-text-color: #9f8968;
+  --milk-text-color: #a49e94;
+  --grey-text-color: #797978;
+
+  /* Ticket colors */
+  --ticket-border-main-color: #403124;
+  --ticket-border-main-fading-color: #2d221a30;
+  --ticket-border-dark-color: #251e19;
+  --ticket-border-light-color-transparent: #d0beb21e;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+
+  color: white;
+  background-color: #070707;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  font-family: "Fira Sans Condensed", sans-serif;
+  font-size: 1.2rem;
+}
