@@ -1,5 +1,13 @@
+import Header from "./presentation/components/Header";
+import QuestsPane from "./presentation/panes/QuestsPane";
+
 const App = () => {
-  return <div>App</div>;
+  return (
+    <>
+      <Header />
+      <QuestsPane />
+    </>
+  );
 };
 
 export default App;

@@ -1,0 +1,68 @@
+.heading-container {
+  display: flex;
+  align-items: center;
+  background-color: var(--yellow-more-transparent);
+}
+
+.heading-container h3 {
+  font-weight: normal;
+  text-transform: uppercase;
+
+  margin: 0;
+  padding: 0;
+}
+
+.heading-container p {
+  text-transform: uppercase;
+  font-size: 1rem;
+  color: var(--milk-text-color);
+
+  margin: 0;
+  padding: 0;
+}
+
+.heading-container-border {
+  position: relative;
+  border: 1px solid var(--yellow);
+  padding: 0.5em 1em;
+}
+.heading-container-border:before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  background: var(--yellow);
+  clip-path: polygon(
+    0 3px,
+    3px 3px,
+    3px 0,
+    calc(100% - 3px) 0,
+    calc(100% - 3px) 3px,
+    100% 3px,
+    100% calc(100% - 3px),
+    calc(100% - 3px) calc(100% - 3px),
+    calc(100% - 3px) 100%,
+    3px 100%,
+    3px calc(100% - 3px),
+    0 calc(100% - 3px),
+    0 3px,
+    1px calc(3px + 1px),
+    1px calc(100% - 3px - 1px),
+    calc(3px + 1px) calc(100% - 3px - 1px),
+    calc(3px + 1px) calc(100% - 1px),
+    calc(100% - 3px - 1px) calc(100% - 1px),
+    calc(100% - 3px - 1px) calc(100% - 3px - 1px),
+    calc(100% - 1px) calc(100% - 3px - 1px),
+    calc(100% - 1px) calc(3px + 1px),
+    calc(100% - 3px - 1px) calc(3px + 1px),
+    calc(100% - 3px - 1px) 1px,
+    calc(3px + 1px) 1px,
+    calc(3px + 1px) calc(3px + 1px),
+    1px calc(3px + 1px)
+  );
+}
+
+.stages-container {
+  padding: 0.7em;
+  margin-top: 1.3em;
+  overflow-y: auto;
+}

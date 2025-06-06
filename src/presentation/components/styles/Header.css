@@ -1,0 +1,7 @@
+header {
+  min-height: 4.5em;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

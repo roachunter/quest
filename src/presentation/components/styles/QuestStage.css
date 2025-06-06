@@ -1,0 +1,19 @@
+.quest-stage-container {
+  display: flex;
+  gap: 0.7em;
+  margin-bottom: 0.5em;
+}
+
+.quest-stage-container p {
+  margin: 0;
+  padding: 0;
+  line-height: 1.5rem;
+}
+
+.prepared-stage p {
+  color: var(--milk-text-color);
+}
+
+.completed-stage p {
+  color: var(--grey-text-color);
+}
