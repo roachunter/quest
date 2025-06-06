@@ -1,0 +1,184 @@
+.ticket-border-solid {
+  position: relative;
+  border: 1px solid var(--ticket-border-main-color);
+}
+.ticket-border-solid:before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  background: var(--ticket-border-main-color);
+  clip-path: polygon(
+    0 3px,
+    3px 3px,
+    3px 0,
+    calc(100% - 3px) 0,
+    calc(100% - 3px) 3px,
+    100% 3px,
+    100% calc(100% - 3px),
+    calc(100% - 3px) calc(100% - 3px),
+    calc(100% - 3px) 100%,
+    3px 100%,
+    3px calc(100% - 3px),
+    0 calc(100% - 3px),
+    0 3px,
+    1px calc(3px + 1px),
+    1px calc(100% - 3px - 1px),
+    calc(3px + 1px) calc(100% - 3px - 1px),
+    calc(3px + 1px) calc(100% - 1px),
+    calc(100% - 3px - 1px) calc(100% - 1px),
+    calc(100% - 3px - 1px) calc(100% - 3px - 1px),
+    calc(100% - 1px) calc(100% - 3px - 1px),
+    calc(100% - 1px) calc(3px + 1px),
+    calc(100% - 3px - 1px) calc(3px + 1px),
+    calc(100% - 3px - 1px) 1px,
+    calc(3px + 1px) 1px,
+    calc(3px + 1px) calc(3px + 1px),
+    1px calc(3px + 1px)
+  );
+}
+
+.ticket-border-gradient {
+  position: relative;
+  border-image: linear-gradient(
+      var(--ticket-border-main-color),
+      var(--ticket-border-main-fading-color),
+      #00000000,
+      #00000000
+    )
+    1;
+  border-style: solid;
+  border-width: 1px;
+}
+.ticket-border-gradient:before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  background: linear-gradient(
+    var(--ticket-border-main-color),
+    var(--ticket-border-main-fading-color),
+    #00000000,
+    #00000000
+  );
+  clip-path: polygon(
+    0 3px,
+    3px 3px,
+    3px 0,
+    calc(100% - 3px) 0,
+    calc(100% - 3px) 3px,
+    100% 3px,
+    100% calc(100% - 3px),
+    calc(100% - 3px) calc(100% - 3px),
+    calc(100% - 3px) 100%,
+    3px 100%,
+    3px calc(100% - 3px),
+    0 calc(100% - 3px),
+    0 3px,
+    1px calc(3px + 1px),
+    1px calc(100% - 3px - 1px),
+    calc(3px + 1px) calc(100% - 3px - 1px),
+    calc(3px + 1px) calc(100% - 1px),
+    calc(100% - 3px - 1px) calc(100% - 1px),
+    calc(100% - 3px - 1px) calc(100% - 3px - 1px),
+    calc(100% - 1px) calc(100% - 3px - 1px),
+    calc(100% - 1px) calc(3px + 1px),
+    calc(100% - 3px - 1px) calc(3px + 1px),
+    calc(100% - 3px - 1px) 1px,
+    calc(3px + 1px) 1px,
+    calc(3px + 1px) calc(3px + 1px),
+    1px calc(3px + 1px)
+  );
+}
+
+.ticket-container-dark {
+  position: relative;
+  border: 1px solid var(--ticket-border-dark-color);
+  padding: 0.5em 1em;
+}
+.ticket-container-dark:before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  background: var(--ticket-border-dark-color);
+  clip-path: polygon(
+    0 3px,
+    3px 3px,
+    3px 0,
+    calc(100% - 3px) 0,
+    calc(100% - 3px) 3px,
+    100% 3px,
+    100% calc(100% - 3px),
+    calc(100% - 3px) calc(100% - 3px),
+    calc(100% - 3px) 100%,
+    3px 100%,
+    3px calc(100% - 3px),
+    0 calc(100% - 3px),
+    0 3px,
+    1px calc(3px + 1px),
+    1px calc(100% - 3px - 1px),
+    calc(3px + 1px) calc(100% - 3px - 1px),
+    calc(3px + 1px) calc(100% - 1px),
+    calc(100% - 3px - 1px) calc(100% - 1px),
+    calc(100% - 3px - 1px) calc(100% - 3px - 1px),
+    calc(100% - 1px) calc(100% - 3px - 1px),
+    calc(100% - 1px) calc(3px + 1px),
+    calc(100% - 3px - 1px) calc(3px + 1px),
+    calc(100% - 3px - 1px) 1px,
+    calc(3px + 1px) 1px,
+    calc(3px + 1px) calc(3px + 1px),
+    1px calc(3px + 1px)
+  );
+}
+
+.ticket-border-light-gradient-horizontal {
+  position: relative;
+  border-image: linear-gradient(
+      to right,
+      var(--yellow-almost-transparent),
+      var(--ticket-border-main-fading-color),
+      #00000000,
+      #00000000
+    )
+    1;
+  border-style: solid;
+  border-width: 1px;
+}
+.ticket-border-light-gradient-horizontal:before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  background: linear-gradient(
+    to right,
+    var(--yellow-almost-transparent),
+    var(--ticket-border-main-fading-color),
+    #00000000,
+    #00000000
+  );
+  clip-path: polygon(
+    0 3px,
+    3px 3px,
+    3px 0,
+    calc(100% - 3px) 0,
+    calc(100% - 3px) 3px,
+    100% 3px,
+    100% calc(100% - 3px),
+    calc(100% - 3px) calc(100% - 3px),
+    calc(100% - 3px) 100%,
+    3px 100%,
+    3px calc(100% - 3px),
+    0 calc(100% - 3px),
+    0 3px,
+    1px calc(3px + 1px),
+    1px calc(100% - 3px - 1px),
+    calc(3px + 1px) calc(100% - 3px - 1px),
+    calc(3px + 1px) calc(100% - 1px),
+    calc(100% - 3px - 1px) calc(100% - 1px),
+    calc(100% - 3px - 1px) calc(100% - 3px - 1px),
+    calc(100% - 1px) calc(100% - 3px - 1px),
+    calc(100% - 1px) calc(3px + 1px),
+    calc(100% - 3px - 1px) calc(3px + 1px),
+    calc(100% - 3px - 1px) 1px,
+    calc(3px + 1px) 1px,
+    calc(3px + 1px) calc(3px + 1px),
+    1px calc(3px + 1px)
+  );
+}
