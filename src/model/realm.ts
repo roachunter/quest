@@ -1,6 +1,7 @@
-import type { Quest } from "./quest"
+import type { Quest } from "./quest";
 
 export type Realm = {
-    title: string
-    quests: Quest[]
-}
+  id: string;
+  title: string;
+  quests: Quest[];
+};

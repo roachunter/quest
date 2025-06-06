@@ -1,4 +1,7 @@
 export type Stage = {
+  id: string;
   description: string;
-  state: "current" | "completed" | "prepared";
+  state: StageState;
 };
+
+export type StageState = "current" | "completed" | "prepared";
