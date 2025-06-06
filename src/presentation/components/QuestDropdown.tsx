@@ -1,15 +1,15 @@
-import type { Quest } from "../../model/quest";
 import type { Realm } from "../../model/realm";
+import useQuestStore from "../state/questStore";
 import QuestDropdownItem from "./QuestDropdownItem";
 import "./styles/QuestDropdown.css";
 
 type Props = {
   realm: Realm;
-  selectedQuest: Quest | null;
-  onQuestClick: (quest: Quest) => void;
 };
 
-const QuestDropdown = ({ realm, selectedQuest, onQuestClick }: Props) => {
+const QuestDropdown = ({ realm }: Props) => {
+  const selectedQuest = useQuestStore((state) => state.selectedQuest);
+
   return (
     <div className="dropdown-container">
       <details>
@@ -18,11 +18,10 @@ const QuestDropdown = ({ realm, selectedQuest, onQuestClick }: Props) => {
           {realm.quests.map((quest) => {
             return (
               <QuestDropdownItem
-                key={`${quest.title}-${selectedQuest == quest}`} // TODO: add id to quests
+                key={quest.id}
                 quest={quest}
                 realmTitle={realm.title}
-                selected={selectedQuest == quest}
-                onClick={onQuestClick}
+                selected={selectedQuest?.id == quest.id}
               />
             );
           })}

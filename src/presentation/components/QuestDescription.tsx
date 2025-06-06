@@ -1,16 +1,16 @@
-import type { Quest } from "../../model/quest";
+import useQuestStore from "../state/questStore";
 import "./styles/QuestDescription.css";
 
-type Props = {
-  quest: Quest | null;
-};
+const QuestDescription = () => {
+  const questDescription = useQuestStore(
+    (state) => state.selectedQuest?.description
+  );
 
-const QuestDescription = ({ quest }: Props) => {
   return (
     <>
-      {quest ? (
+      {questDescription ? (
         <div className="quest-description-container">
-          {quest.description.split("\n").map((paragraph) => (
+          {questDescription.split("\n").map((paragraph) => (
             <p className="quest-description">{paragraph}</p>
           ))}
         </div>

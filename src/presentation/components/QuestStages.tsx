@@ -1,13 +1,11 @@
-import type { Quest } from "../../model/quest";
+import useQuestStore from "../state/questStore";
 import QuestStage from "./QuestStage";
 import "./styles/QuestStages.css";
 
-type Props = {
-  quest: Quest;
-  realmTitle: string;
-};
+const QuestStages = () => {
+  const quest = useQuestStore((state) => state.selectedQuest);
+  const realmTitle = useQuestStore((state) => state.selectedRealm?.title);
 
-const QuestStages = ({ quest, realmTitle }: Props) => {
   return (
     <>
       {quest ? (
@@ -20,8 +18,8 @@ const QuestStages = ({ quest, realmTitle }: Props) => {
             </div>
           </div>
           <div className="stages-container">
-            {quest.stages.map((stage, index) => (
-              <QuestStage key={index} stage={stage} />
+            {quest.stages.map((stage) => (
+              <QuestStage key={stage.id} stage={stage} />
             ))}
           </div>
         </>
