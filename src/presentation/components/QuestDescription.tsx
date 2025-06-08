@@ -10,8 +10,10 @@ const QuestDescription = () => {
     <>
       {questDescription ? (
         <div className="quest-description-container">
-          {questDescription.split("\n").map((paragraph) => (
-            <p className="quest-description">{paragraph}</p>
+          {questDescription.split("\n").map((paragraph, index) => (
+            <p key={index} className="quest-description">
+              {paragraph}
+            </p>
           ))}
         </div>
       ) : (
