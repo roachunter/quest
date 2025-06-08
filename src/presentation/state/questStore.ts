@@ -8,6 +8,7 @@ type QuestState = {
   selectedRealm: Realm | null;
   selectedQuest: Quest | null;
   selectQuest: (quest: Quest) => void;
+  addQuest: (realm: Realm, title: string) => void;
 };
 
 const useQuestStore = create<QuestState>((set) => ({
@@ -23,6 +24,35 @@ const useQuestStore = create<QuestState>((set) => ({
       return {
         selectedRealm: parentRealm,
         selectedQuest: quest,
+      };
+    }),
+  addQuest: (realm, title) =>
+    set((state) => {
+      const oldRealms = [...state.realms];
+      const oldRealmIdx = oldRealms.findIndex((r) => r.id == realm.id);
+      if (oldRealmIdx < 0) {
+        return {};
+      }
+      const oldRealm = oldRealms[oldRealmIdx];
+
+      const newQuest: Quest = {
+        id: uid(),
+        realmId: oldRealm.id,
+        title: title,
+        description: "",
+        stages: [],
+      };
+
+      const updatedRealm: Realm = {
+        ...oldRealm,
+        quests: [...oldRealm.quests, newQuest],
+      };
+
+      const updatedRealms = [...oldRealms];
+      updatedRealms.splice(oldRealmIdx, 1, updatedRealm);
+
+      return {
+        realms: updatedRealms,
       };
     }),
 }));
