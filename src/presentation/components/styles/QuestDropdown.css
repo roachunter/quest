@@ -12,7 +12,7 @@
 }
 
 details > summary {
-  background: #0e0d0c;
+  background: var(--dark-brown);
 
   user-select: none;
   color: var(--yellow-text-color);
