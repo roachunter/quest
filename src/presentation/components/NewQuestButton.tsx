@@ -1,4 +1,10 @@
-import { useRef, useState, type ChangeEvent, type MouseEvent } from "react";
+import {
+  useRef,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+  type MouseEvent,
+} from "react";
 import "./styles/NewQuestButton.css";
 import useQuestStore from "../state/questStore";
 import type { Realm } from "../../model/realm";
@@ -46,7 +52,7 @@ const NewQuestButton = () => {
     dialogRef.current?.close();
   };
 
-  const handleSubmit = (event: MouseEvent<HTMLButtonElement>) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!newQuestRealm) {
@@ -78,7 +84,10 @@ const NewQuestButton = () => {
         ref={dialogRef}
         onClick={handleClickOutsideDialog}
       >
-        <form className="new-quest-dialog-form ticket-container-dark">
+        <form
+          onSubmit={handleSubmit}
+          className="new-quest-dialog-form ticket-container-dark"
+        >
           <h3>New Quest</h3>
 
           <label htmlFor="realm-select">Realm</label>
@@ -104,10 +113,10 @@ const NewQuestButton = () => {
           {titleError}
 
           <div className="new-quest-dialog-buttons">
-            <button onClick={handleCancel} className="ticket-container-dark">
+            <button type="button"  onClick={handleCancel} className="ticket-container-dark">
               Cancel
             </button>
-            <button onClick={handleSubmit} className="ticket-container-dark">
+            <button type="submit" className="ticket-container-dark">
               Start
             </button>
           </div>
