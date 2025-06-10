@@ -10,7 +10,7 @@ type QuestState = {
   selectedRealm: Realm | null;
   selectedQuest: Quest | null;
   selectQuest: (quest: Quest) => void;
-  addQuest: (realm: Realm, title: string) => void;
+  addQuest: (realmId: string, title: string) => void;
   addStage: (description: string) => void;
 };
 
@@ -33,14 +33,14 @@ const useQuestStore = create<QuestState>()(
           selectedQuest: quest,
         };
       }),
-    addQuest: (realm, title) =>
+    addQuest: (realmId, title) =>
       set((state) => {
-        const stateRealm = state.realms.find((r) => r.id == realm.id);
-        if (!stateRealm) {
+        const realm = state.realms.find((r) => r.id == realmId);
+        if (!realm) {
           return;
         }
 
-        stateRealm.quests.push({
+        realm.quests.push({
           id: uid(),
           realmId: realm.id,
           title: title,

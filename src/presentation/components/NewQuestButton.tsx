@@ -7,16 +7,13 @@ import {
 } from "react";
 import "./styles/QuestButton.css";
 import useQuestStore from "../state/questStore";
-import type { Realm } from "../../model/realm";
 
 const NewQuestButton = () => {
   const realms = useQuestStore((state) => state.realms);
   const addQuest = useQuestStore((state) => state.addQuest);
 
-  const [newQuestRealm, setNewQuestRealm] = useState<Realm | null>(
-    realms[0] || null
-  );
-  const [newQuestTitle, setNewQuestTitle] = useState("");
+  const [realmId, setRealmId] = useState(realms[0]?.id || "");
+  const [title, setTitle] = useState("");
   const [titleError, setTitleError] = useState("");
 
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -32,17 +29,14 @@ const NewQuestButton = () => {
   };
 
   const handleRealmSelect = (event: ChangeEvent<HTMLSelectElement>) => {
-    const selectedRealm = realms.find(
-      (realm) => realm.id == event.target.value
-    );
-    if (!selectedRealm) return;
+    const selectedRealmId = event.target.value;
 
-    setNewQuestRealm(selectedRealm);
+    setRealmId(selectedRealmId);
   };
 
   const handleTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    setNewQuestTitle(value);
+    setTitle(value);
 
     setTitleError("");
   };
@@ -55,20 +49,20 @@ const NewQuestButton = () => {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!newQuestRealm) {
+    if (!realmId) {
       return;
     }
 
-    const title = newQuestTitle.trim();
-    if (!title) {
+    const titleTrimmed = title.trim();
+    if (!titleTrimmed) {
       setTitleError("Please name your quest.");
       return;
     }
 
-    addQuest(newQuestRealm, title);
+    addQuest(realmId, titleTrimmed);
     dialogRef.current?.close();
 
-    setNewQuestTitle("");
+    setTitle("");
   };
 
   return (
@@ -92,7 +86,7 @@ const NewQuestButton = () => {
 
           <label htmlFor="realm-select">Realm</label>
           <select
-            value={newQuestRealm?.id}
+            value={realmId}
             onChange={handleRealmSelect}
             name="realm-select"
           >
@@ -106,7 +100,7 @@ const NewQuestButton = () => {
           <label htmlFor="new-quest-title">Title</label>
           <input
             type="text"
-            value={newQuestTitle}
+            value={title}
             onChange={handleTitleChange}
             name="new-quest-title"
           />
