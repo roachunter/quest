@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { Realm } from "../../model/realm";
 import type { Quest } from "../../model/quest";
 import uid from "../../util/uid";
+import type { Stage } from "../../model/stage";
 
 type QuestState = {
   realms: Realm[];
@@ -9,6 +10,7 @@ type QuestState = {
   selectedQuest: Quest | null;
   selectQuest: (quest: Quest) => void;
   addQuest: (realm: Realm, title: string) => void;
+  addStage: (description: string) => void;
 };
 
 const useQuestStore = create<QuestState>((set) => ({
@@ -53,6 +55,52 @@ const useQuestStore = create<QuestState>((set) => ({
 
       return {
         realms: updatedRealms,
+      };
+    }),
+  addStage: (description) =>
+    set((state) => {
+      const oldRealms = state.realms;
+      const oldRealm = state.selectedRealm;
+      const oldQuest = state.selectedQuest;
+      if (!oldRealm || !oldQuest) {
+        return {};
+      }
+
+      const newStage: Stage = {
+        id: uid(),
+        description: description,
+        state: (() => {
+          if (oldQuest.stages.length > 0) {
+            return "prepared";
+          } else return "current";
+        })(),
+      };
+
+      const updatedStages = [...oldQuest.stages, newStage];
+      const updatedQuest: Quest = {
+        ...oldQuest,
+        stages: updatedStages,
+      };
+      const updatedQuests = [...oldRealm.quests];
+      const updatedQuestIdx = oldRealm.quests.findIndex(
+        (quest) => quest.id == updatedQuest.id
+      );
+      updatedQuests.splice(updatedQuestIdx, 1, updatedQuest);
+      const updatedRealm: Realm = {
+        ...oldRealm,
+        quests: updatedQuests,
+      };
+
+      const updatedRealmIdx = oldRealms.findIndex(
+        (realm) => realm.id == updatedRealm.id
+      );
+      const updatedRealms = [...oldRealms];
+      updatedRealms.splice(updatedRealmIdx, 1, updatedRealm);
+
+      return {
+        realms: updatedRealms,
+        selectedRealm: updatedRealm,
+        selectedQuest: updatedQuest,
       };
     }),
 }));

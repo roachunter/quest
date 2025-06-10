@@ -1,13 +1,13 @@
-.new-quest-btn {
+.quest-btn {
   color: white;
   width: fit-content;
 }
 
-.new-quest-dialog {
+.quest-dialog {
   padding: 0;
 }
 
-.new-quest-dialog-form {
+.quest-dialog-form {
   background: black;
   color: white;
 
@@ -18,14 +18,14 @@
   gap: 0.5em;
 }
 
-.new-quest-dialog-form h3 {
+.quest-dialog-form h3 {
   font-weight: 400;
 
   margin: 0;
   padding: 0;
 }
 
-.new-quest-dialog-buttons {
+.quest-dialog-buttons {
   margin-top: 0.5em;
 
   display: flex;
@@ -33,6 +33,6 @@
   gap: 0.5em;
 }
 
-.new-quest-dialog-buttons button {
+.quest-dialog-buttons button {
   color: white;
 }

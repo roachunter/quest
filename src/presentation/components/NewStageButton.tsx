@@ -7,19 +7,13 @@ import {
 } from "react";
 import "./styles/QuestButton.css";
 import useQuestStore from "../state/questStore";
-import type { Realm } from "../../model/realm";
 
-const NewQuestButton = () => {
-  const realms = useQuestStore((state) => state.realms);
-  const addQuest = useQuestStore((state) => state.addQuest);
-
-  const [newQuestRealm, setNewQuestRealm] = useState<Realm | null>(
-    realms[0] || null
-  );
-  const [newQuestTitle, setNewQuestTitle] = useState("");
-  const [titleError, setTitleError] = useState("");
-
+const NewStageButton = () => {
+  const addStage = useQuestStore((state) => state.addStage);
   const dialogRef = useRef<HTMLDialogElement>(null);
+
+  const [stageDescription, setStageDescription] = useState("");
+  const [descriptionError, setDescriptionError] = useState("");
 
   const handleButtonClick = () => {
     dialogRef.current?.showModal();
@@ -31,20 +25,11 @@ const NewQuestButton = () => {
     }
   };
 
-  const handleRealmSelect = (event: ChangeEvent<HTMLSelectElement>) => {
-    const selectedRealm = realms.find(
-      (realm) => realm.id == event.target.value
-    );
-    if (!selectedRealm) return;
-
-    setNewQuestRealm(selectedRealm);
-  };
-
-  const handleTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleStageDescChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    setNewQuestTitle(value);
+    setStageDescription(value);
 
-    setTitleError("");
+    setDescriptionError("");
   };
 
   const handleCancel = (event: MouseEvent<HTMLButtonElement>) => {
@@ -55,20 +40,16 @@ const NewQuestButton = () => {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!newQuestRealm) {
+    const desc = stageDescription.trim();
+    if (!desc) {
+      setDescriptionError("Please specify stage description.");
       return;
     }
 
-    const title = newQuestTitle.trim();
-    if (!title) {
-      setTitleError("Please name your quest.");
-      return;
-    }
-
-    addQuest(newQuestRealm, title);
+    addStage(desc);
     dialogRef.current?.close();
 
-    setNewQuestTitle("");
+    setStageDescription("");
   };
 
   return (
@@ -77,7 +58,7 @@ const NewQuestButton = () => {
         className="quest-btn ticket-container-dark"
         onClick={handleButtonClick}
       >
-        New Quest
+        New Stage
       </button>
       <dialog
         className="quest-dialog"
@@ -88,29 +69,16 @@ const NewQuestButton = () => {
           onSubmit={handleSubmit}
           className="quest-dialog-form ticket-container-dark"
         >
-          <h3>New Quest</h3>
+          <h3>New Stage</h3>
 
-          <label htmlFor="realm-select">Realm</label>
-          <select
-            value={newQuestRealm?.id}
-            onChange={handleRealmSelect}
-            name="realm-select"
-          >
-            {realms.map((realm) => (
-              <option key={realm.id} value={realm.id}>
-                {realm.title}
-              </option>
-            ))}
-          </select>
-
-          <label htmlFor="new-quest-title">Title</label>
+          <label htmlFor="new-stage-description">Description</label>
           <input
             type="text"
-            value={newQuestTitle}
-            onChange={handleTitleChange}
-            name="new-quest-title"
+            value={stageDescription}
+            onChange={handleStageDescChange}
+            name="new-stage-description"
           />
-          {titleError}
+          {descriptionError}
 
           <div className="quest-dialog-buttons">
             <button
@@ -129,4 +97,4 @@ const NewQuestButton = () => {
     </>
   );
 };
-export default NewQuestButton;
+export default NewStageButton;
