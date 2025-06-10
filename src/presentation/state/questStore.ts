@@ -12,13 +12,13 @@ type QuestState = {
   selectQuest: (quest: Quest) => void;
   addQuest: (realmId: string, title: string) => void;
   addStage: (description: string) => void;
+  nextStage: () => void;
+  previousStage: () => void;
 };
 
 const useQuestStore = create<QuestState>()(
-  // Bug in zustand/middleware/immer module causes type error
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  immer((set) => ({
+  // @ts-expect-error Bug in zustand/middleware/immer module causes type error
+  immer<QuestState>((set) => ({
     realms: generateTestRealms(),
     selectedRealm: null,
     selectedQuest: null,
@@ -59,10 +59,63 @@ const useQuestStore = create<QuestState>()(
         const newStage: Stage = {
           id: uid(),
           description: description,
-          state: quest.stages.length > 0 ? "prepared" : "current",
+          state: quest.stages.every((s) => s.state != "current")
+            ? "current"
+            : "prepared",
         };
 
         quest.stages.push(newStage);
+
+        state.selectedQuest = quest;
+      }),
+    nextStage: () =>
+      set((state) => {
+        const realm = state.realms.find((r) => r.id == state.selectedRealm?.id);
+        if (!realm) return;
+
+        const quest = realm.quests.find((q) => q.id == state.selectedQuest?.id);
+        if (!quest) return;
+
+        const currentStageIdx = quest.stages.findIndex(
+          (s) => s.state == "current"
+        );
+        if (currentStageIdx < 0) return;
+
+        const currentStage = quest.stages[currentStageIdx];
+        currentStage.state = "completed";
+
+        const nextStage = quest.stages[currentStageIdx + 1];
+        if (nextStage) {
+          nextStage.state = "current";
+        }
+
+        state.selectedQuest = quest;
+      }),
+    previousStage: () =>
+      set((state) => {
+        const realm = state.realms.find((r) => r.id == state.selectedRealm?.id);
+        if (!realm) return;
+
+        const quest = realm.quests.find((q) => q.id == state.selectedQuest?.id);
+        if (!quest) return;
+
+        if (quest.stages.length == 0) return;
+
+        const currentStageIdx = quest.stages.findIndex(
+          (s) => s.state == "current"
+        );
+
+        if (currentStageIdx < 0) {
+          const lastStage = quest.stages[quest.stages.length - 1];
+          lastStage.state = "current";
+        } else if (currentStageIdx == 0) {
+          return;
+        } else {
+          const currentStage = quest.stages[currentStageIdx];
+          currentStage.state = "prepared";
+          const previousStage = quest.stages[currentStageIdx - 1];
+          previousStage.state = "current";
+        }
 
         state.selectedQuest = quest;
       }),
@@ -93,13 +146,13 @@ function generateTestRealms(): Realm[] {
               id: uid(),
               description:
                 "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Animi.",
-              state: "current",
+              state: "completed",
             },
             {
               id: uid(),
               description:
                 "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Perspiciatis, quaerat.",
-              state: "prepared",
+              state: "current",
             },
             {
               id: uid(),
@@ -110,7 +163,7 @@ function generateTestRealms(): Realm[] {
               id: uid(),
               description:
                 "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
-              state: "completed",
+              state: "prepared",
             },
           ],
         })),
