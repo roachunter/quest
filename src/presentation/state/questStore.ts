@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 import type { Realm } from "../../model/realm";
 import type { Quest } from "../../model/quest";
 import uid from "../../util/uid";
@@ -13,97 +14,60 @@ type QuestState = {
   addStage: (description: string) => void;
 };
 
-const useQuestStore = create<QuestState>((set) => ({
-  realms: generateTestRealms(),
-  selectedRealm: null,
-  selectedQuest: null,
-  selectQuest: (quest) =>
-    set((state) => {
-      const parentRealm = state.realms.find(
-        (realm) => realm.id == quest.realmId
-      );
+const useQuestStore = create<QuestState>()(
+  // Bug in zustand/middleware/immer module causes type error
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  immer((set) => ({
+    realms: generateTestRealms(),
+    selectedRealm: null,
+    selectedQuest: null,
+    selectQuest: (quest) =>
+      set((state) => {
+        const parentRealm = state.realms.find(
+          (realm) => realm.id == quest.realmId
+        );
 
-      return {
-        selectedRealm: parentRealm,
-        selectedQuest: quest,
-      };
-    }),
-  addQuest: (realm, title) =>
-    set((state) => {
-      const oldRealms = [...state.realms];
-      const oldRealmIdx = oldRealms.findIndex((r) => r.id == realm.id);
-      if (oldRealmIdx < 0) {
-        return {};
-      }
-      const oldRealm = oldRealms[oldRealmIdx];
+        return {
+          selectedRealm: parentRealm,
+          selectedQuest: quest,
+        };
+      }),
+    addQuest: (realm, title) =>
+      set((state) => {
+        const stateRealm = state.realms.find((r) => r.id == realm.id);
+        if (!stateRealm) {
+          return;
+        }
 
-      const newQuest: Quest = {
-        id: uid(),
-        realmId: oldRealm.id,
-        title: title,
-        description: "",
-        stages: [],
-      };
+        stateRealm.quests.push({
+          id: uid(),
+          realmId: realm.id,
+          title: title,
+          description: "",
+          stages: [],
+        });
+      }),
+    addStage: (description) =>
+      set((state) => {
+        const realm = state.realms.find((r) => r.id == state.selectedRealm?.id);
+        if (!realm) return;
 
-      const updatedRealm: Realm = {
-        ...oldRealm,
-        quests: [...oldRealm.quests, newQuest],
-      };
+        const quest = realm.quests.find((q) => q.id == state.selectedQuest?.id);
+        if (!quest) return;
 
-      const updatedRealms = [...oldRealms];
-      updatedRealms.splice(oldRealmIdx, 1, updatedRealm);
+        const newStage: Stage = {
+          id: uid(),
+          description: description,
+          state: quest.stages.length > 0 ? "prepared" : "current",
+        };
 
-      return {
-        realms: updatedRealms,
-      };
-    }),
-  addStage: (description) =>
-    set((state) => {
-      const oldRealms = state.realms;
-      const oldRealm = state.selectedRealm;
-      const oldQuest = state.selectedQuest;
-      if (!oldRealm || !oldQuest) {
-        return {};
-      }
+        quest.stages.push(newStage);
 
-      const newStage: Stage = {
-        id: uid(),
-        description: description,
-        state: (() => {
-          if (oldQuest.stages.length > 0) {
-            return "prepared";
-          } else return "current";
-        })(),
-      };
-
-      const updatedStages = [...oldQuest.stages, newStage];
-      const updatedQuest: Quest = {
-        ...oldQuest,
-        stages: updatedStages,
-      };
-      const updatedQuests = [...oldRealm.quests];
-      const updatedQuestIdx = oldRealm.quests.findIndex(
-        (quest) => quest.id == updatedQuest.id
-      );
-      updatedQuests.splice(updatedQuestIdx, 1, updatedQuest);
-      const updatedRealm: Realm = {
-        ...oldRealm,
-        quests: updatedQuests,
-      };
-
-      const updatedRealmIdx = oldRealms.findIndex(
-        (realm) => realm.id == updatedRealm.id
-      );
-      const updatedRealms = [...oldRealms];
-      updatedRealms.splice(updatedRealmIdx, 1, updatedRealm);
-
-      return {
-        realms: updatedRealms,
-        selectedRealm: updatedRealm,
-        selectedQuest: updatedQuest,
-      };
-    }),
-}));
+        state.selectedQuest = quest;
+      }),
+  }))
+);
 export default useQuestStore;
 
 function generateTestRealms(): Realm[] {
