@@ -37,6 +37,45 @@
   );
 }
 
+.ticket-border-solid-dark {
+  position: relative;
+  border: 1px solid var(--ticket-border-dark-color);
+}
+.ticket-border-solid-dark:before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  background: var(--ticket-border-dark-color);
+  clip-path: polygon(
+    0 3px,
+    3px 3px,
+    3px 0,
+    calc(100% - 3px) 0,
+    calc(100% - 3px) 3px,
+    100% 3px,
+    100% calc(100% - 3px),
+    calc(100% - 3px) calc(100% - 3px),
+    calc(100% - 3px) 100%,
+    3px 100%,
+    3px calc(100% - 3px),
+    0 calc(100% - 3px),
+    0 3px,
+    1px calc(3px + 1px),
+    1px calc(100% - 3px - 1px),
+    calc(3px + 1px) calc(100% - 3px - 1px),
+    calc(3px + 1px) calc(100% - 1px),
+    calc(100% - 3px - 1px) calc(100% - 1px),
+    calc(100% - 3px - 1px) calc(100% - 3px - 1px),
+    calc(100% - 1px) calc(100% - 3px - 1px),
+    calc(100% - 1px) calc(3px + 1px),
+    calc(100% - 3px - 1px) calc(3px + 1px),
+    calc(100% - 3px - 1px) 1px,
+    calc(3px + 1px) 1px,
+    calc(3px + 1px) calc(3px + 1px),
+    1px calc(3px + 1px)
+  );
+}
+
 .ticket-border-gradient {
   position: relative;
   border-image: linear-gradient(
