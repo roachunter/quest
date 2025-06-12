@@ -1,0 +1,53 @@
+.quest-dialog {
+  padding: 0;
+}
+
+.quest-dialog button {
+  color: white;
+  width: fit-content;
+}
+
+.quest-dialog-form {
+  background: black;
+  color: white;
+
+  padding: 1em;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.quest-dialog-form h3 {
+  font-weight: 400;
+
+  margin: 0;
+  padding: 0;
+}
+
+.quest-dialog-form-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2em;
+}
+
+.quest-dialog-form-container > div {
+  max-height: 24em;
+  overflow-y: hidden;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.quest-dialog-form-container textarea {
+  resize: vertical;
+}
+
+.quest-dialog-buttons {
+  margin-top: 0.5em;
+
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5em;
+}

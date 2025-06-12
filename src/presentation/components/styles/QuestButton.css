@@ -2,37 +2,3 @@
   color: white;
   width: fit-content;
 }
-
-.quest-dialog {
-  padding: 0;
-}
-
-.quest-dialog-form {
-  background: black;
-  color: white;
-
-  padding: 1em;
-
-  display: flex;
-  flex-direction: column;
-  gap: 0.5em;
-}
-
-.quest-dialog-form h3 {
-  font-weight: 400;
-
-  margin: 0;
-  padding: 0;
-}
-
-.quest-dialog-buttons {
-  margin-top: 0.5em;
-
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5em;
-}
-
-.quest-dialog-buttons button {
-  color: white;
-}
