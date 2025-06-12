@@ -10,14 +10,21 @@ type QuestState = {
   selectedRealm: Realm | null;
   selectedQuest: Quest | null;
   selectQuest: (quest: Quest) => void;
-  addQuest: (realmId: string, title: string) => void;
-  addStage: (description: string) => void;
+  addQuest: (
+    realmId: string,
+    title: string,
+    stageDescriptions: string[]
+  ) => void;
+  editQuest: (
+    realmId?: string,
+    title?: string,
+    stageDescriptions?: string[]
+  ) => void;
   nextStage: () => void;
   previousStage: () => void;
 };
 
 const useQuestStore = create<QuestState>()(
-  // @ts-expect-error Bug in zustand/middleware/immer module causes type error
   immer<QuestState>((set) => ({
     realms: generateTestRealms(),
     selectedRealm: null,
@@ -33,38 +40,83 @@ const useQuestStore = create<QuestState>()(
           selectedQuest: quest,
         };
       }),
-    addQuest: (realmId, title) =>
+    addQuest: (realmId, title, stageDescriptions) =>
       set((state) => {
         const realm = state.realms.find((r) => r.id == realmId);
         if (!realm) {
           return;
         }
 
-        realm.quests.push({
+        const stages: Stage[] = stageDescriptions.map((desc) => ({
+          id: uid(),
+          description: desc,
+          state: "prepared",
+        }));
+        if (stages.length > 0) {
+          stages[0].state = "current";
+        }
+
+        const quest: Quest = {
           id: uid(),
           realmId: realm.id,
           title: title,
           description: "",
-          stages: [],
-        });
-      }),
-    addStage: (description) =>
-      set((state) => {
-        const realm = state.realms.find((r) => r.id == state.selectedRealm?.id);
-        if (!realm) return;
-
-        const quest = realm.quests.find((q) => q.id == state.selectedQuest?.id);
-        if (!quest) return;
-
-        const newStage: Stage = {
-          id: uid(),
-          description: description,
-          state: quest.stages.every((s) => s.state != "current")
-            ? "current"
-            : "prepared",
+          stages: stages,
         };
 
-        quest.stages.push(newStage);
+        realm.quests.push(quest);
+      }),
+    editQuest: (realmId, title, stageDescriptions) =>
+      set((state) => {
+        const selectedQuest = state.selectedQuest;
+        if (!selectedQuest) return;
+
+        const realm = state.realms.find((r) => r.id == selectedQuest.realmId);
+        if (!realm) return;
+
+        const questIdx = realm.quests.findIndex(
+          (q) => q.id == selectedQuest.id
+        );
+        if (questIdx < 0) return;
+
+        const quest = realm.quests[questIdx];
+
+        if (title && title != quest.title) {
+          quest.title = title;
+        }
+
+        if (stageDescriptions) {
+          const oldStages = quest.stages;
+
+          quest.stages = stageDescriptions.map((desc) => ({
+            id: uid(),
+            description: desc,
+            state: "prepared",
+          }));
+
+          for (let i = 0; i < oldStages.length; i++) {
+            if (
+              oldStages[i].description == quest.stages[i].description &&
+              oldStages[i].state == "completed"
+            ) {
+              quest.stages[i].state = "completed";
+            } else {
+              quest.stages[i].state = "current";
+              break;
+            }
+          }
+        }
+
+        if (realmId && realmId != quest.realmId) {
+          const newRealm = state.realms.find((r) => r.id == realmId);
+          if (newRealm) {
+            quest.realmId = realmId;
+
+            realm.quests.splice(questIdx, 1);
+            newRealm.quests.push(quest);
+            state.selectedRealm = newRealm;
+          }
+        }
 
         state.selectedQuest = quest;
       }),
