@@ -42,6 +42,7 @@
 
 .quest-dialog-form-container textarea {
   resize: vertical;
+  height: 10em;
 }
 
 .quest-dialog-buttons {
