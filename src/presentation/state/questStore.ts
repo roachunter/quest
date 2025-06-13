@@ -20,6 +20,7 @@ type QuestState = {
     title?: string,
     stageDescriptions?: string[]
   ) => void;
+  editQuestDescription: (description: string) => void;
   nextStage: () => void;
   previousStage: () => void;
 };
@@ -117,6 +118,18 @@ const useQuestStore = create<QuestState>()(
             state.selectedRealm = newRealm;
           }
         }
+
+        state.selectedQuest = quest;
+      }),
+    editQuestDescription: (description) =>
+      set((state) => {
+        const realm = state.realms.find((r) => r.id == state.selectedRealm?.id);
+        if (!realm) return;
+
+        const quest = realm.quests.find((q) => q.id == state.selectedQuest?.id);
+        if (!quest) return;
+
+        quest.description = description;
 
         state.selectedQuest = quest;
       }),
