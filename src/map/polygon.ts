@@ -3,7 +3,8 @@ import { createNoise2D } from "simplex-noise";
 
 const GRID_SIZE = 25;
 const JITTER = 0.5;
-const WAVELENGTH = 0.5;
+const WAVELENGTH = 0.3;
+const SEA_LEVEL = 0.5;
 
 ///////////////////////////////////////////////////////////////////////////////////
 ////                                 POINTS                                    ////
@@ -98,27 +99,79 @@ export function calculateCentroids(
   return centroids;
 }
 
+function findAdjacentTriangles(
+  numRegions: number,
+  triangles: Uint32Array<ArrayBufferLike>
+) {
+  const adjacent: number[][] = Array.from({ length: numRegions }, () => []);
+  for (let i = 0; i < triangles.length; i++) {
+    const r = triangles[i];
+    const t = Math.floor(i / 3);
+    if (!adjacent[r].includes(t)) {
+      adjacent[r].push(t);
+    }
+  }
+  return adjacent;
+}
+
+function getNeighborTriangles(
+  t: number,
+  halfedges: Int32Array<ArrayBufferLike>
+): number[] {
+  const neighbors = [];
+  const edgesOfTriangle = [3 * t, 3 * t + 1, 3 * t + 2];
+
+  for (const e of edgesOfTriangle) {
+    const opposite = halfedges[e];
+    if (opposite !== -1) {
+      neighbors.push(triangleOfEdge(opposite));
+    }
+  }
+
+  return neighbors;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 ////                               ELEVATION                                   ////
 ///////////////////////////////////////////////////////////////////////////////////
 
-function assignElevation(
-  points: Point[],
-  numRegions: number,
+function assignTriangleElevation(
+  centers: Point[],
+  numTriangles: number,
   aspectRatio: number,
   gridSize = GRID_SIZE
 ) {
   const noise = createNoise2D();
-
   const elevation = [];
-  for (let r = 0; r < numRegions; r++) {
-    const nx = points[r].x / gridSize - aspectRatio / 2,
-      ny = points[r].y / gridSize - 0.5;
 
-    elevation[r] = (1 + noise(nx / WAVELENGTH, ny / WAVELENGTH)) / 2;
+  for (let t = 0; t < numTriangles; t++) {
+    const nx = centers[t].x / gridSize - aspectRatio / 2,
+      ny = centers[t].y / gridSize - 0.5;
+
+    elevation[t] = (1 + noise(nx / WAVELENGTH, ny / WAVELENGTH)) / 2;
 
     const d = 2 * Math.max(Math.abs(nx), Math.abs(ny));
-    elevation[r] = (1 + elevation[r] - d) / 2;
+    elevation[t] = (1 + elevation[t] - d) / 2;
+  }
+
+  return elevation;
+}
+
+function assignRegionElevation(
+  numRegions: number,
+  triangles: Uint32Array<ArrayBufferLike>,
+  tElevation: number[]
+) {
+  const elevation = [];
+  const adjacentTriangles = findAdjacentTriangles(numRegions, triangles);
+
+  for (let r = 0; r < numRegions; r++) {
+    const adjacent_t = adjacentTriangles[r];
+    const sumOfElevations = adjacent_t.reduce(
+      (sum, t) => sum + tElevation[t],
+      0
+    );
+    elevation[r] = sumOfElevations / adjacent_t.length;
   }
 
   return elevation;
@@ -151,8 +204,8 @@ function assignMoisture(
 ////                                 BIOMES                                    ////
 ///////////////////////////////////////////////////////////////////////////////////
 
-function biomeColor(map: Map, r: number) {
-  let e = (map.elevation[r] - 0.5) * 2,
+function biomeColor(map: GameMap, r: number) {
+  let e = (map.rElevation[r] - 0.5) * 2,
     m = map.moisture[r];
 
   let red, green, blue;
@@ -175,6 +228,86 @@ function biomeColor(map: Map, r: number) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
+////                                 RIVERS                                    ////
+///////////////////////////////////////////////////////////////////////////////////
+
+function generateRivers(map: GameMap): Map<number, number> {
+  const riverFlow = new Map<number, number>();
+
+  const riverSources: number[] = [];
+  for (let t = 0; t < map.numTriangles; t++) {
+    const elevation = map.tElevation[t];
+    if (elevation > SEA_LEVEL + 0.15 && elevation < 0.9) {
+      if (Math.random() < 0.05) {
+        riverSources.push(t);
+      }
+    }
+  }
+
+  for (const startT of riverSources) {
+    let currentT = startT;
+    const riverPath: number[] = [];
+    let reachedSea = false;
+
+    while (true) {
+      const neighbors = getNeighborTriangles(currentT, map.halfedges);
+      let lowestNeighborT = -1;
+      let minElevation = map.tElevation[currentT];
+
+      for (const neighborT of neighbors) {
+        if (map.tElevation[neighborT] < minElevation) {
+          minElevation = map.tElevation[neighborT];
+          lowestNeighborT = neighborT;
+        }
+      }
+
+      if (lowestNeighborT == -1) {
+        break;
+      }
+
+      const edgesOfCurrent = [3 * currentT, 3 * currentT + 1, 3 * currentT + 2];
+      let flowEdge = -1;
+      for (const e of edgesOfCurrent) {
+        if (
+          map.halfedges[e] !== -1 &&
+          triangleOfEdge(map.halfedges[e]) === lowestNeighborT
+        ) {
+          flowEdge = e;
+          break;
+        }
+      }
+
+      if (flowEdge == -1) {
+        break;
+      }
+
+      riverPath.push(flowEdge);
+
+      if (map.tElevation[lowestNeighborT] < SEA_LEVEL) {
+        reachedSea = true;
+        break;
+      }
+
+      currentT = lowestNeighborT;
+    }
+
+    if (reachedSea) {
+      for (const edge of riverPath) {
+        const currentFlow = riverFlow.get(edge) || 0;
+        riverFlow.set(edge, currentFlow + 1);
+
+        const oppositeEdge = map.halfedges[edge];
+        if (oppositeEdge != -1) {
+          riverFlow.set(oppositeEdge, currentFlow + 1);
+        }
+      }
+    }
+  }
+
+  return riverFlow;
+}
+
+///////////////////////////////////////////////////////////////////////////////////
 ////                                  MAP                                      ////
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -184,17 +317,37 @@ export function createMap(
   aspectRatio: number,
   gridSize = GRID_SIZE
 ) {
-  const map: Map = {
+  const numRegions = points.length;
+  const numTriangles = delaunay.triangles.length / 3;
+  const triangles = delaunay.triangles;
+  const centroids = calculateCentroids(points, delaunay);
+
+  const tElevation = assignTriangleElevation(
+    centroids,
+    numTriangles,
+    aspectRatio,
+    gridSize
+  );
+
+  const rElevation = assignRegionElevation(numRegions, triangles, tElevation);
+
+  const map: GameMap = {
     points,
-    numRegions: points.length,
-    numTriangles: delaunay.triangles.length / 3,
+    numRegions,
+    numTriangles,
     numEdges: delaunay.halfedges.length,
     halfedges: delaunay.halfedges,
-    triangles: delaunay.triangles,
-    centers: calculateCentroids(points, delaunay),
-    elevation: assignElevation(points, points.length, aspectRatio, gridSize),
+    triangles,
+    centers: centroids,
+    tElevation,
+    rElevation,
     moisture: assignMoisture(points, points.length, aspectRatio, gridSize),
+    riverFlow: new Map(),
   };
+
+  const riverFlow = generateRivers(map);
+  map.riverFlow = riverFlow;
+
   return map;
 }
 
@@ -226,7 +379,7 @@ export function drawPoints(
 
 export function drawCellBoundaries(
   canvas: HTMLCanvasElement,
-  map: Map,
+  map: GameMap,
   gridSize = GRID_SIZE
 ) {
   const { centers, halfedges, numEdges } = map;
@@ -259,7 +412,7 @@ export function drawCellBoundaries(
 
 export function drawCellColors(
   canvas: HTMLCanvasElement,
-  map: Map,
+  map: GameMap,
   colorFn: (r: number) => string = (r) => biomeColor(map, r),
   gridSize = GRID_SIZE
 ) {
@@ -300,6 +453,39 @@ export function drawCellColors(
   ctx.restore();
 }
 
+export function drawRivers(
+  canvas: HTMLCanvasElement,
+  map: GameMap,
+  gridSize = GRID_SIZE
+) {
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  const { width, height } = calculateGridDimensions(canvas, gridSize);
+
+  ctx.save();
+  ctx.scale(canvas.width / width, canvas.height / height);
+
+  ctx.strokeStyle = "rgb(46, 62, 123)";
+  ctx.lineCap = "round";
+
+  for (const [e, flow] of map.riverFlow.entries()) {
+    if (e < map.halfedges[e]) {
+      ctx.lineWidth = Math.sqrt(flow) * 0.05;
+
+      const p = map.centers[triangleOfEdge(e)];
+      const q = map.centers[triangleOfEdge(map.halfedges[e])];
+
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(q.x, q.y);
+      ctx.stroke();
+    }
+  }
+
+  ctx.restore();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 ////                               DRAWING UTIL                                ////
 ///////////////////////////////////////////////////////////////////////////////////
@@ -324,7 +510,7 @@ type Point = {
   y: number;
 };
 
-type Map = {
+type GameMap = {
   points: Point[];
   numRegions: number;
   numTriangles: number;
@@ -332,6 +518,8 @@ type Map = {
   halfedges: Int32Array<ArrayBufferLike>;
   triangles: Uint32Array<ArrayBufferLike>;
   centers: Point[];
-  elevation: number[];
+  tElevation: number[];
+  rElevation: number[];
   moisture: number[];
+  riverFlow: Map<number, number>;
 };
