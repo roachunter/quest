@@ -31,7 +31,7 @@ const RealmsPane = () => {
     };
 
     const draw = () => {
-      const gridSize = 30;
+      const gridSize = 45;
       const points = getPoints(aspectRatio, gridSize);
       const delaunay = getDelaunay(points);
 
@@ -43,16 +43,22 @@ const RealmsPane = () => {
 
     draw();
 
+    const redraw = () => {
+      clear();
+      draw();
+    };
+
     const handleMapRefresh = (e: KeyboardEvent) => {
       if (e.key == "r") {
-        clear();
-        draw();
+        redraw();
       }
     };
 
+    window.addEventListener("resize", redraw);
     window.addEventListener("keydown", handleMapRefresh);
     return () => {
       window.removeEventListener("keydown", handleMapRefresh);
+      window.removeEventListener("resize", redraw);
     };
   }, []);
 
