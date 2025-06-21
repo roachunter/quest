@@ -1,8 +1,8 @@
 import Delaunator from "delaunator";
+import PoissonDiskSampling from "poisson-disk-sampling";
 import { createNoise2D } from "simplex-noise";
 
 const GRID_SIZE = 25;
-const JITTER = 0.5;
 const WAVELENGTH = 0.3;
 const SEA_LEVEL = 0.5;
 
@@ -11,30 +11,32 @@ const SEA_LEVEL = 0.5;
 ///////////////////////////////////////////////////////////////////////////////////
 
 export function getPoints(aspectRatio: number, gridSize = GRID_SIZE) {
-  const points: Point[] = [];
+  let points: Point[] = [];
 
   const width = Math.floor(gridSize * aspectRatio);
   const height = gridSize;
+  const generator = new PoissonDiskSampling({
+    shape: [width, height],
+    minDistance: 1 / Math.sqrt(2),
+    tries: 8,
+  });
 
-  for (let x = 0; x <= width; x++) {
-    for (let y = 0; y <= height; y++) {
-      const point: Point = {
-        x: x + JITTER * (Math.random() - Math.random()),
-        y: y + JITTER * (Math.random() - Math.random()),
-      };
+  points = generator.fill().map((p) => ({ x: p[0], y: p[1] }));
 
-      points.push(point);
-    }
+  const OOBPointsCount = 20;
+  const OOBPointOffset = 10;
+  for (let i = 1; i < OOBPointsCount; i++) {
+    points.push({ x: -OOBPointOffset, y: (height / OOBPointsCount) * i });
+    points.push({
+      x: width + OOBPointOffset,
+      y: (height / OOBPointsCount) * i,
+    });
+    points.push({ x: (width / OOBPointsCount) * i, y: -OOBPointOffset });
+    points.push({
+      x: (width / OOBPointsCount) * i,
+      y: height + OOBPointOffset,
+    });
   }
-
-  points.push({ x: -10, y: height / 2 });
-  points.push({ x: width + 10, y: height / 2 });
-  points.push({ y: -10, x: width / 2 });
-  points.push({ y: height + 10, x: width / 2 });
-  points.push({ x: -10, y: -10 });
-  points.push({ x: width + 10, y: height + 10 });
-  points.push({ y: -10, x: width + 10 });
-  points.push({ y: height + 10, x: -10 });
 
   return points;
 }
